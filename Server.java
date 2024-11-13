@@ -110,6 +110,12 @@ public class Server {
                 broadcastMessage(serverSocket, "\r" + GREEN + userName +": " + RESET + chatMessage, group, actualClientAddress); //Sending message to everyone in the chat
             break;
 
+            case "ASKUSERS": //ASKUSERS:UserName
+                userName = parts[1];
+                
+                askUserList(serverSocket, group, userName);
+            break;
+
             case "PRIVATE": // PRIVATE:Sender:Receiver:Message
                 String sender = parts[1];
                 String receiver = parts[2];
@@ -151,6 +157,15 @@ public class Server {
 
     private static void sendUserList(MulticastSocket serverSocket, InetAddress group) throws IOException {
         String message = "USERS: " + String.join(",", userList);
+        byte[] buffer = message.getBytes();
+
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, SERVER_PORT);
+        
+        serverSocket.send(packet);
+    }
+
+    private static void askUserList(MulticastSocket serverSocket, InetAddress group, String username) throws IOException {
+        String message = "USERS: " + username + "=" + String.join(",", userList);
         byte[] buffer = message.getBytes();
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, SERVER_PORT);

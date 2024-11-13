@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client {
@@ -69,6 +70,17 @@ public class Client {
                 System.out.println(message);
             } else if(message.startsWith("USERS: ")){
                 String copyMessage = message;
+                // System.out.println("SI EMPIZA CON USERS: ");
+                if(message.contains("=")){ //If it has the username
+                    // System.out.println("TIENE EL EQUAL y es " + message.substring(7));
+                    if((message.substring(7)).startsWith(USERNAME)){
+                        // System.out.println("SI EMPIEZA !!");
+                        message = message.substring(message.indexOf("=") + 1);
+                        String[] userslist = message.split(",");
+                        System.out.println("USER's LIST: " + Arrays.toString(userslist));
+                        continue;
+                    }
+                }
                 //Get users list
                 String userList = message.substring(7);//Delete prefix "USERS: "
                 String[] users = userList.split(",");
@@ -105,6 +117,9 @@ public class Client {
         } else if (input.equals("/leave")) {
             // Leave the chat
             sendLeaveMessage();
+        
+        } else if (input.equals("/users")) {
+            sendAskUsersList();
         } else {
             // Send regular message
             sendChatMessage(input);
@@ -132,6 +147,11 @@ public class Client {
     private void sendLeaveMessage() throws IOException {
         String leaveMessage = "LEAVE:" + USERNAME;
         sendMessage(leaveMessage);
+    }
+
+    private void sendAskUsersList() throws IOException{
+        String askUsersList = "ASKUSERS:" + USERNAME;
+        sendMessage(askUsersList);
     }
 
     private void sendMessage(String message) throws IOException {
