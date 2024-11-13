@@ -65,7 +65,7 @@ public class Client {
             String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
             
             // Filtrar mensajes propios basándose en el nombre de usuario
-            if (!message.startsWith("\r\033[1;32m" + USERNAME + ":") && !message.startsWith("USERS: ")) {
+            if (!message.startsWith("\r\033[1;32m" + USERNAME + ":") && !message.startsWith("USERS: ") && !message.startsWith("PRIVATE:")) {
                 System.out.println(message);
             } else if(message.startsWith("USERS: ")){
                 String copyMessage = message;
@@ -75,6 +75,16 @@ public class Client {
 
                 if (users[users.length - 1].equals(USERNAME)) {
                     System.out.println(copyMessage);
+                }
+            } else{
+                String[] parts = message.split(":");
+
+                if (parts[0].equals("PRIVATE")) {
+                    String receiver = parts[2]; // El receiver está en la posición 2
+                    if (receiver.equals(USERNAME)) {
+                        message = "[" + parts[0] + "] " + parts[1] + ": " + parts[3]; // El mensaje está en la posición 3
+                        System.out.println(message);
+                    }
                 }
             }
         }

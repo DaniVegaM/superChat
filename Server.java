@@ -114,7 +114,7 @@ public class Server {
                 String sender = parts[1];
                 String receiver = parts[2];
                 String privateMessage = parts[3];
-                sendPrivateMessage(serverSocket, sender, receiver, privateMessage); // Send private message
+                sendPrivateMessage(serverSocket, sender, receiver, privateMessage, group); // Send private message
             break;
 
             case "FILE": // FILE:Sender:Receiver:FileName:FileSize
@@ -166,17 +166,13 @@ public class Server {
         System.out.println("Broadcast message sent to group: " + message);
     }
 
-    private static void sendPrivateMessage(MulticastSocket serverSocket, String sender, String receiver, String message) throws IOException {
-        InetSocketAddress receiverAddress = userAddresses.get(receiver);
-        if (receiverAddress != null) {
-            String privateMessage = "PRIVATE:" + sender + ":" + message;
-            byte[] buffer = privateMessage.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, receiverAddress.getAddress(), receiverAddress.getPort());
-            serverSocket.send(packet);
-            System.out.println("Private message sent to " + receiver);
-        } else {
-            System.out.println("Receiver " + receiver + " not found.");
-        }
+    private static void sendPrivateMessage(MulticastSocket serverSocket, String sender, String receiver, String message, InetAddress group) throws IOException {
+
+        String privateMessage = "PRIVATE:" + sender + ":" + receiver + ":" + message;
+        byte[] buffer = privateMessage.getBytes();
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, SERVER_PORT);
+        serverSocket.send(packet);
+        System.out.println("Private message sent to " + receiver);
     }
 
     private static void sendFile(MulticastSocket serverSocket, String fileSender, String fileReceiver, String fileName, long fileSize, InetSocketAddress receiverAddress) throws IOException {
