@@ -60,13 +60,22 @@ public class Client {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             clientSocket.receive(receivePacket);
 
+            // System.out.println("RECIBI ESTO: " + receivePacket);
+
             String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
             
             // Filtrar mensajes propios basándose en el nombre de usuario
-            if (!message.startsWith("\r\033[1;32m" + USERNAME + ":")) {
+            if (!message.startsWith("\r\033[1;32m" + USERNAME + ":") && !message.startsWith("USERS: ")) {
                 System.out.println(message);
-            } else {
-                // System.out.println("Ignored own message: " + message);
+            } else if(message.startsWith("USERS: ")){
+                String copyMessage = message;
+                //Get users list
+                String userList = message.substring(7);//Delete prefix "USERS: "
+                String[] users = userList.split(",");
+
+                if (users[users.length - 1].equals(USERNAME)) {
+                    System.out.println(copyMessage);
+                }
             }
         }
     }

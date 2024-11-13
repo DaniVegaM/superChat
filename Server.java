@@ -1,6 +1,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
@@ -15,6 +16,16 @@ public class Server {
     private static final String MULTICAST_ADDRESS = "230.0.0.0"; //MultiCast Address
     private static List<String> userList = new ArrayList<>();
     private static Map<String, InetSocketAddress> userAddresses = new HashMap<>();
+
+    private static DatagramSocket unicastSocket; // Persistente para envíos unicast
+
+    static {
+        try {
+            unicastSocket = new DatagramSocket(); // Inicializar un solo DatagramSocket
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static String GREEN = "\033[1;32m";
     private static String RESET = "\033[0m";
@@ -88,7 +99,7 @@ public class Server {
                 System.out.println("Dir del cliente desde JOIN" + actualClientAddress);
                 userAddresses.put(username, actualClientAddress);
                 System.out.println(username + " has joined to the chat.");
-                broadcastUserList(serverSocket, group); // Sending the updated user's list
+                sendUserList(serverSocket, group); // Sending the updated user's list
             break;
 
             case "MSG": //MSG:UserName:Message
@@ -129,7 +140,7 @@ public class Server {
                 userList.remove(userLeaving);
                 userAddresses.remove(userLeaving);
                 System.out.println(userLeaving + " has leaved from the chat.");
-                broadcastUserList(serverSocket, group); // Update the user's list
+                // sendUserList(serverSocket, group); // Update the user's list
             break;
 
             default:
@@ -138,14 +149,13 @@ public class Server {
         }
     }
 
-    private static void broadcastUserList(MulticastSocket serverSocket, InetAddress group) throws IOException {
-        String userListMessage = "USERS:" + String.join(",", userList);
-        byte[] buffer = userListMessage.getBytes();
+    private static void sendUserList(MulticastSocket serverSocket, InetAddress group) throws IOException {
+        String message = "USERS: " + String.join(",", userList);
+        byte[] buffer = message.getBytes();
+
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, SERVER_PORT);
         
-        for (InetSocketAddress address : userAddresses.values()) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address);
-            serverSocket.send(packet);
-        }
+        serverSocket.send(packet);
     }
 
     private static void broadcastMessage(MulticastSocket serverSocket, String message, InetAddress group, InetSocketAddress actualClientAddress) throws IOException {
