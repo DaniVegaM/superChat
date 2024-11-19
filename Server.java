@@ -146,6 +146,7 @@ public class Server {
                 userList.remove(userLeaving);
                 userAddresses.remove(userLeaving);
                 System.out.println(userLeaving + " has leaved from the chat.");
+                broadcastMessage(serverSocket, "\r" + GREEN + userLeaving + " has leaved from the chat.", group, actualClientAddress);
                 // sendUserList(serverSocket, group); // Update the user's list
             break;
 

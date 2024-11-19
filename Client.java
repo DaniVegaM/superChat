@@ -147,6 +147,7 @@ public class Client {
     private void sendLeaveMessage() throws IOException {
         String leaveMessage = "LEAVE:" + USERNAME;
         sendMessage(leaveMessage);
+        System.exit(0);
     }
 
     private void sendAskUsersList() throws IOException{
